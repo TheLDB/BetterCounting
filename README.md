@@ -1,4 +1,4 @@
-# CountingBot
+# BetterCounting
 Developed by [Landon Boles](https://github.com/TheLDB)
 
 ![overview](./public/overview.png)

@@ -1,5 +1,5 @@
 {
-  "name": "counting_bot",
+  "name": "better_counting",
   "version": "0.0.1",
   "description": "A simple discord bot that allows for counting in a channel",
   "main": "src/index.ts",
