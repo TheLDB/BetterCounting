@@ -1,0 +1,6 @@
+# Node/Cache
+node_modules
+.DS_Store
+
+# Secrets
+.env
