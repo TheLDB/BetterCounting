@@ -14,11 +14,6 @@ const registerSlashCommands = (client: Client) => {
     };
 
     commands?.create({
-        name: 'ping',
-        description: 'test'
-    });
-
-    commands?.create({
         name: 'register',
         'description': "Register a counting channel",
         options: [{
@@ -28,6 +23,11 @@ const registerSlashCommands = (client: Client) => {
             type: DiscordJS.ApplicationCommandOptionType.Channel
         }]
     })
+
+    commands?.create({
+        name: 'delete',
+        description: 'aaaaaaa'
+    });
 }
 
 export { registerSlashCommands };

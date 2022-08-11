@@ -1,5 +1,8 @@
+// * 3rd Party Libs
 import 'dotenv/config';
 import { Client } from "discord.js";
+
+// * Helper functions
 import { onReady } from './helpers/onReady';
 import { interactionManager } from './helpers/interactionManager';
 
