@@ -9,6 +9,8 @@ const onMessage = (client: Client): void => {
         const channelID = message.channelId;
 
         // * Check if channelID is registered in Supabase
+
+        // ! This is very very slow.... how do we fix it?
         let channelExists = await prisma.countStatus.findUnique({
             where: {
                 channelID
