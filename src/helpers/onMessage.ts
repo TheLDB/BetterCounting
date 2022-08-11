@@ -1,5 +1,6 @@
 import { Client } from "discord.js";
 import { PrismaClient } from "@prisma/client";
+import * as crypto from 'crypto';
 const onMessage = (client: Client): void => {
 	const prisma = new PrismaClient();
 	client.on("messageCreate", async (message) => {
@@ -37,18 +38,20 @@ const onMessage = (client: Client): void => {
 						},
 					});
 
-					// await prisma.countSubmissions.create({
-					// 	data: {
-					// 		entryID: crypto.randomUUID(),
-					// 		userID: message.author.id,
-					// 		serverID: message.guildId ? message.guildId : "uhhh",
-					// 		channelID: message.channelId,
-					// 		wasCorrect: true,
-					// 		prevNum: channelExists.currentNum,
-					// 		submittedNum: sentNumber,
-					// 		createdOn: new Date()
-					// 	}
-					// });
+					await prisma.countSubmissions.create({
+						data: {
+							entryID: crypto.randomUUID(),
+							userID: message.author.id,
+							serverID: message.guildId ? message.guildId : "uhhh",
+							channelID: message.channelId,
+							wasCorrect: true,
+							prevNum: channelExists.currentNum,
+							submittedNum: sentNumber,
+							wasNewHighScore: true,
+							createdOn: new Date()
+						}
+					});
+
 
 				} else {
 					// * Else, just update the currentNum
@@ -62,6 +65,21 @@ const onMessage = (client: Client): void => {
 							currentNum: sentNumber,
 						},
 					});
+
+					await prisma.countSubmissions.create({
+						data: {
+							entryID: crypto.randomUUID(),
+							userID: message.author.id,
+							serverID: message.guildId!,
+							channelID: message.channelId,
+							wasCorrect: true,
+							prevNum: channelExists.currentNum,
+							submittedNum: sentNumber,
+							wasNewHighScore: false,
+							createdOn: new Date(),
+						}
+					});
+
 				}
 				if(sentNumber === 13) {
 					message.react("😈")
@@ -74,6 +92,8 @@ const onMessage = (client: Client): void => {
 				}
 			} else {
 				// * Number is wrong, set counter to 0 and react with an X
+				message.react("❌");
+
 				await prisma.countStatus.update({
 					where: {
 						channelID,
@@ -83,7 +103,19 @@ const onMessage = (client: Client): void => {
 					},
 				});
 
-				message.react("❌");
+				await prisma.countSubmissions.create({
+					data: {
+						entryID: crypto.randomUUID(),
+						userID: message.author.id,
+						serverID: message.guildId!,
+						channelID: message.channelId,
+						wasCorrect: false,
+						prevNum: channelExists.currentNum,
+						submittedNum: sentNumber,
+						wasNewHighScore: false,
+						createdOn: new Date(),
+					}
+				})
 			}
 		}
 	});
