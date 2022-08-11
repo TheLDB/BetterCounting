@@ -1,7 +1,7 @@
 # BetterCounting
 Developed by [Landon Boles](https://github.com/TheLDB)
 
-[Add this bot to your server](https://discord.com/api/oauth2/authorize?client_id=1007098982310367252&permissions=1088&scope=bot%20applications.commands)
+## [Add this bot to your server](https://discord.com/api/oauth2/authorize?client_id=1007098982310367252&permissions=1088&scope=bot%20applications.commands)
 
 ![overview](./public/overview.png)
 
