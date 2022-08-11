@@ -36,6 +36,20 @@ const onMessage = (client: Client): void => {
 							highestStreak: sentNumber,
 						},
 					});
+
+					// await prisma.countSubmissions.create({
+					// 	data: {
+					// 		entryID: crypto.randomUUID(),
+					// 		userID: message.author.id,
+					// 		serverID: message.guildId ? message.guildId : "uhhh",
+					// 		channelID: message.channelId,
+					// 		wasCorrect: true,
+					// 		prevNum: channelExists.currentNum,
+					// 		submittedNum: sentNumber,
+					// 		createdOn: new Date()
+					// 	}
+					// });
+
 				} else {
 					// * Else, just update the currentNum
 					message.react("✅");
