@@ -11,6 +11,8 @@ const interactionManager = async (client: Client) => {
 
         if(commandName === "register") {
             const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
+            const increment = options.get("increment");
+            console.log(increment);
             if(channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
                 // * Check if it exists in Supabase already
                 const doesExist = await doesChannelExist(channel.value.toString());
@@ -22,6 +24,7 @@ const interactionManager = async (client: Client) => {
                             serverID: interaction.guildId!,
                             currentNum: 0,
                             highestStreak: 0,
+                            increment: increment ? Number(increment.value) : 1,
                             createdOn: new Date(),
                             updatedOn: new Date()
                         }

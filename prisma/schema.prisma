@@ -10,8 +10,9 @@ datasource db {
 model countStatus {
   channelID     String   @id @db.VarChar
   serverID      String   @db.VarChar
-  currentNum    BigInt
-  highestStreak BigInt
+  currentNum    Decimal  @db.Decimal
+  highestStreak Decimal  @db.Decimal
+  increment     Decimal? @default(1) @db.Decimal
   createdOn     DateTime @db.Timestamptz(6)
   updatedOn     DateTime @db.Timestamptz(6)
 }
