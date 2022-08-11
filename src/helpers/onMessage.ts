@@ -10,7 +10,6 @@ const onMessage = (client: Client): void => {
 
         // * Check if channelID is registered in Supabase
 
-        // ! This is very very slow.... how do we fix it?
         let channelExists = await prisma.countStatus.findUnique({
             where: {
                 channelID
@@ -24,6 +23,8 @@ const onMessage = (client: Client): void => {
                 // * Number is 1 higher, increment and react
                 if(sentNumber > Number(channelExists.highestStreak)) {
                     // * If it's a new high streak, update the score
+                    message.react('✅')
+                    
                     await prisma.countStatus.update({
                         where: {
                             channelID
@@ -36,6 +37,8 @@ const onMessage = (client: Client): void => {
                 }
                 else {
                     // * Else, just update the currentNum
+                    message.react('✅')
+
                     await prisma.countStatus.update({
                         where: {
                             channelID
@@ -46,7 +49,6 @@ const onMessage = (client: Client): void => {
                     });
                 }
                 
-                message.react('✅')
             }
             else {
                 // * Number is wrong, set counter to 0 and react with an X
