@@ -51,7 +51,44 @@ const interactionManager = async (client: Client) => {
                 })
             }
         }
-        if(commandName === "delete") {
+        else if(commandName === "updateincrement") {
+            const channel = options.get("channel");
+            const increment = options.get("increment");
+            if(channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
+                // * Ensure channel is present in Supabase/registered
+                const doesExist = await doesChannelExist(channel.value.toString());
+                if(doesExist) {
+                    const updatedIncrement = await prisma.countStatus.update({
+                        where: {
+                            channelID: channel.value.toString()
+                        },
+                        data: {
+                            increment: Number(increment?.value)
+                        }
+                    })
+
+                    if(updatedIncrement) {
+                        interaction.reply({
+                            content: `Done! The increment in <#${channel.value.toString()}> is now ${increment?.value?.toString()}!`,
+                            ephemeral: false
+                        })
+                    }
+                    else {
+                        interaction.reply({
+                            content: `Looks like something went wrong.. uh oh.`,
+                            ephemeral: false
+                        })
+                    }
+                }
+                else {
+                    interaction.reply({
+                        content: `Uh oh! Looks like the channel <#${channel.value.toString()}> isn't registered yet.\nYou can register it using the /register command\n\nIf you think this is a bug, DM me on discord: lndn#4096`,
+                        ephemeral: true 
+                    });
+                }
+            }
+        }
+        else if(commandName === "delete") {
             const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
             if(channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
                 // * Check if it exists in Supabase already

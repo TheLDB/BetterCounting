@@ -27,8 +27,27 @@ const registerSlashCommands = (client: Client) => {
 				description: "The number to increment counting by. Default is 1",
 				required: false,
 				type: DiscordJS.ApplicationCommandOptionType.Number,
-			},
+			}
 		],
+	});
+
+	commands?.create({
+		name: "updateincrement",
+		description: "Update the increment for a specific counting channel",
+		options: [
+			{
+				name: "channel",
+				description: "The counting channel to update the increment in",
+				required: true,
+				type: DiscordJS.ApplicationCommandOptionType.Channel
+			},
+			{
+				name: "increment",
+				description: "The new number increment",
+				required: true,
+				type: DiscordJS.ApplicationCommandOptionType.Number,
+			}
+		]
 	});
 
 	commands?.create({
