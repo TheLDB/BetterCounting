@@ -16,5 +16,12 @@ If you're an Administrator, you have the abillity to register and delete channel
 ![Register Screenshot](public/register.png)
 To register a new channel, simply run /register [channelName]
 
-
+![Delete Screenshot](public/delete.png)
 To delete a channel, just use /delete [channelname]
+
+![Both Actions Done](public/both_done.png)
+
+### Counting
+Well... just count, be sure not to skip any numbers though!
+
+** Image here once done ** 

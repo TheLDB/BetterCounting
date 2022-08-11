@@ -26,7 +26,13 @@ const registerSlashCommands = (client: Client) => {
 
     commands?.create({
         name: 'delete',
-        description: 'aaaaaaa'
+        description: 'Delete a counting channel',
+        options: [{
+            name: 'channel',
+            description: "The channel to stop counting in",
+            required: true,
+            type: DiscordJS.ApplicationCommandOptionType.Channel
+        }]
     });
 }
 

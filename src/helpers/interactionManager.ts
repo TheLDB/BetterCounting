@@ -49,7 +49,38 @@ const interactionManager = async (client: Client) => {
             }
         }
         if(commandName === "delete") {
-            console.log(interaction.memberPermissions?.has("Administrator"));
+            const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
+            if(channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
+                // * Check if it exists in Supabase already
+                const doesExist = await doesChannelExist(channel.value.toString());
+                if(doesExist) {
+                    // * Delete it
+                    const deletedChannel = await prisma.countStatus.delete({
+                        where: {
+                            channelID: channel.value.toString()
+                        }
+                    });
+
+                    if(deletedChannel) {
+                        interaction.reply({
+                            content: `Done! I'm no longer counting in <#${channel.value.toString()}>!`,
+                            ephemeral: false
+                        })
+                    }
+                }
+                else {
+                    interaction.reply({
+                        content: `Looks like <#${channel.value.toString()}> isn't registered!\n\nIf you think this is a bug, please message me on Discord: lndn#4096`,
+                        ephemeral: true
+                    })
+                }
+            }
+            else {
+                interaction.reply({
+                    content: `Uh oh! Looks like you lack the permissions to perform this action!\n\nIf you think this is a bug, please message me on Discord: lndn#4096`,
+                    ephemeral: true
+                })
+            }
         }
     })
 }
