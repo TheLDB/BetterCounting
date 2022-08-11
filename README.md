@@ -1,7 +1,10 @@
 # CountingBot
 Developed by [Landon Boles](https://github.com/TheLDB)
 
-** Image here once bot is done **
+** Still in development, working out some bugs, fixing/improving server speeds **
+** Invite not available yet **
+
+![Counting Bot](public/counting.png)
 
 ## What is this bot?
 Counting bot allows you to register (and delete) specific channels, and count with your community.
@@ -24,4 +27,4 @@ To delete a channel, just use /delete [channelname]
 ### Counting
 Well... just count, be sure not to skip any numbers though!
 
-** Image here once done ** 
+![Counting Bot](public/counting.png)
