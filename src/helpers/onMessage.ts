@@ -19,12 +19,13 @@ const onMessage = (client: Client): void => {
 		// * If the channel is a counting channel, and the message content can be converted into a number
 		if (channelExists && !Number.isNaN(Number(message.content))) {
 			const sentNumber = Number(message.content);
-			
+
 			if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment)) {
 				// * Number is correct, increment and react
 				if (sentNumber > Number(channelExists.highestStreak)) {
 					// * If it's a new high streak, update the score
 					message.react("✅");
+					message.react("🎉");
 
 					await prisma.countStatus.update({
 						where: {
@@ -47,6 +48,15 @@ const onMessage = (client: Client): void => {
 							currentNum: sentNumber,
 						},
 					});
+				}
+				if(sentNumber === 13) {
+					message.react("😈")
+				}
+				else if(sentNumber === 42) {
+					message.react("🧬")
+				}
+				else if(sentNumber === 100) {
+					message.react("💯")
 				}
 			} else {
 				// * Number is wrong, set counter to 0 and react with an X

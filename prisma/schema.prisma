@@ -16,3 +16,14 @@ model countStatus {
   createdOn     DateTime @db.Timestamptz(6)
   updatedOn     DateTime @db.Timestamptz(6)
 }
+
+model countSubmissions {
+  entryID      String   @id @db.VarChar
+  userID       String   @db.VarChar
+  serverID     String   @db.VarChar
+  channelID    String   @db.VarChar
+  wasCorrect   Boolean
+  prevNum      Decimal  @db.Decimal
+  submittedNum Decimal  @db.Decimal
+  createdOn    DateTime @db.Timestamptz(6)
+}
