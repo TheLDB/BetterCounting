@@ -47,6 +47,14 @@ If you'd like to get yours, or someone elses counting score, users can run the `
 The user argument is optional, if you'd like your score, you can leave it blank.
 
 ![score](./public/score.png)
+
+### Viewing a channels current & highest score
+Want to know what a channel is at, or how far they've gotten in the past? Use the ``/channelscore {channel}`` command.
+
+The channel argument is optional, if you'd like the current channel's score, you can leave it blank.
+
+![channelscore](./public/channelscore.png)
+
 ### Deleting/Deregestering a channel
 If you'd like to stop counting in a channel, Administrators can run the ``/delete {channel}`` command. 
 

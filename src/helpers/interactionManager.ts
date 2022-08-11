@@ -82,7 +82,6 @@ const interactionManager = async (client: Client) => {
 					});
 				}
 			}
-
 		} else if (commandName === "leaderboard") {
 			const channel = options.get("channel");
 			if (channel && channel.value) {
@@ -96,40 +95,32 @@ const interactionManager = async (client: Client) => {
 				});
 
 				// * Create an array of users and their scores, add them all up based on the submission, then sort them
-                
+
 				let userIDArr: string[] = [];
 				let scoreArr: number[] = [];
 				let leaderboardObjects: { name: string; value: number }[] = [];
-        
+
 				channelInputs.forEach((submission) => {
 					const findUserID = userIDArr.find((id) => id === submission.userID);
 
 					if (findUserID && submission.wasCorrect) {
-
 						const indexOfUID = userIDArr.indexOf(submission.userID);
 						scoreArr[indexOfUID] += 1;
-
 					} else if (findUserID && !submission.wasCorrect) {
-
 						const indexofUID = userIDArr.indexOf(submission.userID);
 						scoreArr[indexofUID] -= 5;
-
 					} else if (submission.wasCorrect) {
-
 						userIDArr.push(submission.userID);
 						scoreArr.push(1);
-
 					} else if (!submission.wasCorrect) {
-
 						userIDArr.push(submission.userID);
 						scoreArr.push(-5);
-                        
 					} else {
 						console.log("uhhhhhhhhh");
 					}
 				});
 
-                // * Push all array data to an array of objects
+				// * Push all array data to an array of objects
 				userIDArr.forEach((id, index) => {
 					leaderboardObjects.push({
 						name: `${userIDArr[index]}`,
@@ -137,12 +128,12 @@ const interactionManager = async (client: Client) => {
 					});
 				});
 
-                // * Sort all objects in descending order
-                leaderboardObjects.sort((a, b) => {
-                    return b.value - a.value;
-                });
+				// * Sort all objects in descending order
+				leaderboardObjects.sort((a, b) => {
+					return b.value - a.value;
+				});
 
-                // * Build embed
+				// * Build embed
 				const leaderboardEmbed = new EmbedBuilder()
 					.setColor("Green")
 					.setTitle("✨ Counting Leaderboard")
@@ -151,8 +142,8 @@ const interactionManager = async (client: Client) => {
 						text: `Stats as of ${new Date().toISOString()}`,
 					});
 
-                    // * Append items to description
-                        // * Dynamic text like refrencing a channel cant be done in fields so description is best
+				// * Append items to description
+				// * Dynamic text like refrencing a channel cant be done in fields so description is best
 				leaderboardObjects.forEach((obj, index) => {
 					if (index < 9) {
 						leaderboardEmbed.setDescription(`${leaderboardEmbed.data.description}\n\n<@${leaderboardObjects[index].name}> - \`\`${leaderboardObjects[index].value}\`\``);
@@ -162,19 +153,18 @@ const interactionManager = async (client: Client) => {
 				interaction.reply({
 					embeds: [leaderboardEmbed],
 				});
-
 			} else {
 				// * Get leaderboard for entire server
-                const serverInputs = await prisma.countSubmissions.findMany({
-                    where: {
-                        serverID: interaction.guildId?.toString()
-                    }
-                });
+				const serverInputs = await prisma.countSubmissions.findMany({
+					where: {
+						serverID: interaction.guildId?.toString(),
+					},
+				});
 
-                // * Create an array of users and their scores, add them all up based on the submission, then sort them
+				// * Create an array of users and their scores, add them all up based on the submission, then sort them
 
-                // * Keep track of userID and score in two different arrays, and push them at the same time, index's will stay consistent throughout
-                    // * is there a better way of doing this?
+				// * Keep track of userID and score in two different arrays, and push them at the same time, index's will stay consistent throughout
+				// * is there a better way of doing this?
 				let userIDArr: string[] = [];
 				let scoreArr: number[] = [];
 				let leaderboardObjects: { name: string; value: number }[] = [];
@@ -197,20 +187,20 @@ const interactionManager = async (client: Client) => {
 					}
 				});
 
-                // * Build the array of objects
-                userIDArr.forEach((id, index) => {
+				// * Build the array of objects
+				userIDArr.forEach((id, index) => {
 					leaderboardObjects.push({
 						name: `${userIDArr[index]}`,
 						value: scoreArr[index],
 					});
 				});
 
-                // * Sort in descending 
-                leaderboardObjects.sort((a, b) => {
-                    return b.value - a.value;
-                });
+				// * Sort in descending
+				leaderboardObjects.sort((a, b) => {
+					return b.value - a.value;
+				});
 
-                // * Build the embed
+				// * Build the embed
 				const leaderboardEmbed = new EmbedBuilder()
 					.setColor("Green")
 					.setTitle("✨ Counting Leaderboard")
@@ -228,73 +218,124 @@ const interactionManager = async (client: Client) => {
 				interaction.reply({
 					embeds: [leaderboardEmbed],
 				});
-
 			}
-		} else if(commandName === "score") {
-            const user = options.get("user");
-            if(user) {
-                // * Get stats on specific user
-                let score: number = 0;
-                const userInputs = await prisma.countSubmissions.findMany({
-                    where: {
-                        userID: user.value?.toString()
-                    }
-                });
+		} else if (commandName === "score") {
+			const user = options.get("user");
+			if (user) {
+				// * Get stats on specific user
+				let score: number = 0;
+				const userInputs = await prisma.countSubmissions.findMany({
+					where: {
+						userID: user.value?.toString(),
+					},
+				});
 
-                userInputs.forEach(input => {
-                    if(input.wasCorrect) {
-                        score += 1;
-                    }
-                    else {
-                        score -= 5;
-                    }
-                })
+				userInputs.forEach((input) => {
+					if (input.wasCorrect) {
+						score += 1;
+					} else {
+						score -= 5;
+					}
+				});
 
-                // * Build the embed
+				// * Build the embed
 				const scoreEmbed = new EmbedBuilder()
-                .setColor("Green")
-                .setTitle("✨ Counting Score")
-                .setDescription(`🔻 Leaderboard for <@${user.value?.toString()}>\n\n<@${user.value?.toString()}> - \`\`${score}\`\``)
-                .setFooter({
-                    text: `Stats as of ${new Date().toISOString()}`,
-                });
+					.setColor("Green")
+					.setTitle("✨ Counting Score")
+					.setDescription(`🔻 Leaderboard for <@${user.value?.toString()}>\n\n<@${user.value?.toString()}> - \`\`${score}\`\``)
+					.setFooter({
+						text: `Stats as of ${new Date().toISOString()}`,
+					});
 
-                interaction.reply({
-                    embeds: [scoreEmbed]
-                })
-            }
-            else {
-                // * Get stats on interaction user
-                let score: number = 0;
-                let userInputs = await prisma.countSubmissions.findMany({
-                    where: {
-                        userID: interaction.user.id
-                    }
-                });
+				interaction.reply({
+					embeds: [scoreEmbed],
+				});
+			} else {
+				// * Get stats on interaction user
+				let score: number = 0;
+				let userInputs = await prisma.countSubmissions.findMany({
+					where: {
+						userID: interaction.user.id,
+					},
+				});
 
-                userInputs.forEach(input => {
-                    if(input.wasCorrect) {
-                        score += 1;
-                    }
-                    else {
-                        score -= 5;
-                    }
-                });
+				userInputs.forEach((input) => {
+					if (input.wasCorrect) {
+						score += 1;
+					} else {
+						score -= 5;
+					}
+				});
 
-                // * Build the embed
-                const scoreEmbed = new EmbedBuilder()
-                .setColor('Green')
-                .setTitle("✨ Counting Score")
-                .setDescription(`🔻 Leaderboard for <@${interaction.user.id}>\n\n<@${interaction.user.id}> - \`\`${score}\`\``)
-                .setFooter({
-                    text: `Stats as of ${new Date().toISOString()}`,
-                });
+				// * Build the embed
+				const scoreEmbed = new EmbedBuilder()
+					.setColor("Green")
+					.setTitle("✨ Counting Score")
+					.setDescription(`🔻 Leaderboard for <@${interaction.user.id}>\n\n<@${interaction.user.id}> - \`\`${score}\`\``)
+					.setFooter({
+						text: `Stats as of ${new Date().toISOString()}`,
+					});
 
-                interaction.reply({
-                    embeds: [scoreEmbed]
-                })
-            }
-        } else if (commandName === "delete") {
+				interaction.reply({
+					embeds: [scoreEmbed],
+				});
+			}
+		} else if (commandName === "channelscore") {
+			const channel = options.get("channel");
+			if (channel && channel.value) {
+				// * Get score of specific channel
+				const channelStats = await prisma.countStatus.findUnique({
+					where: {
+						channelID: channel.value.toString(),
+					},
+				});
+
+				if (channelStats) {
+					// * Build the embed
+					const scoreEmbed = new EmbedBuilder()
+						.setColor("Green")
+						.setTitle("✨ Counting Score")
+						.setDescription(`🔻 Scores for <#${channel.value.toString()}>\n\nCurrent Score - \`\`${channelStats.currentNum}\`\`\n\nHigh Score - \`\`${channelStats.highestStreak}\`\``)
+						.setFooter({
+							text: `Stats as of ${new Date().toISOString()}`,
+						});
+
+					interaction.reply({
+						embeds: [scoreEmbed],
+					});
+				} else {
+					interaction.reply({
+						content: `Uh oh! Seems like <#${channel.value.toString()}> isn't registered yet!`,
+					});
+				}
+			} else {
+				// * Get score of current channel
+				const channelStats = await prisma.countStatus.findUnique({
+					where: {
+						channelID: interaction.channelId,
+					},
+				});
+
+				if (channelStats) {
+					// * Build the embed
+					const scoreEmbed = new EmbedBuilder()
+						.setColor("Green")
+						.setTitle("✨ Counting Score")
+						.setDescription(`🔻 Scores for <#${interaction.channelId}>\n\nCurrent Score - \`\`${channelStats.currentNum}\`\`\n\nHigh Score - \`\`${channelStats.highestStreak}\`\``)
+						.setFooter({
+							text: `Stats as of ${new Date().toISOString()}`,
+						});
+
+					interaction.reply({
+						embeds: [scoreEmbed],
+					});
+				} else {
+					interaction.reply({
+						content: `Uh oh! Seems like <#${interaction.channelId}> isn't registered yet!`,
+					});
+				}
+			}
+		} else if (commandName === "delete") {
 			const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
 			if (channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
 				// * Check if it exists in Supabase already

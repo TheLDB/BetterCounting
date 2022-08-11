@@ -2,7 +2,7 @@ import DiscordJS, { Client } from "discord.js";
 
 const registerSlashCommands = (client: Client) => {
 	console.log("Registering slash commands");
-	const testingGuildID: string = "941546986430169119";
+	const testingGuildID: string = "1007405589762166914";
 	const testingGuild = client.guilds.cache.get(testingGuildID);
 	let commands;
 
@@ -76,6 +76,19 @@ const registerSlashCommands = (client: Client) => {
 		]
 	})
 
+	commands?.create({
+		name: "channelscore",
+		description: "Get the current and high score of a specific channel",
+		options: [
+			{
+				name: "channel",
+				description: "The channel to get the current and high score of",
+				required: false,
+				type: DiscordJS.ApplicationCommandOptionType.Channel
+			}
+		]
+	})
+	
 	commands?.create({
 		name: "delete",
 		description: "Delete a counting channel",
