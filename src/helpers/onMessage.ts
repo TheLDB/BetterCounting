@@ -1,6 +1,7 @@
 import { Client } from "discord.js";
 import { PrismaClient } from "@prisma/client";
 import * as crypto from 'crypto';
+import { evaluate } from "mathjs";
 const onMessage = (client: Client): void => {
 	const prisma = new PrismaClient();
 	client.on("messageCreate", async (message) => {
@@ -94,15 +95,6 @@ const onMessage = (client: Client): void => {
 				// * Number is wrong, set counter to 0 and react with an X
 				message.react("❌");
 
-				await prisma.countStatus.update({
-					where: {
-						channelID,
-					},
-					data: {
-						currentNum: 0,
-					},
-				});
-
 				await prisma.countSubmissions.create({
 					data: {
 						entryID: crypto.randomUUID(),
@@ -116,6 +108,121 @@ const onMessage = (client: Client): void => {
 						createdOn: new Date(),
 					}
 				})
+
+				await prisma.countStatus.update({
+					where: {
+						channelID,
+					},
+					data: {
+						currentNum: 0,
+					},
+				});
+			}
+		}
+		// * Check if it's a math expression
+		else if(channelExists) {
+			try {
+				let sentNumber = evaluate(message.content);
+				if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment)) {
+					// * Number is correct, increment and react
+					if (sentNumber > Number(channelExists.highestStreak)) {
+						// * If it's a new high streak, update the score
+						message.react("✅");
+						message.react("🎉");
+	
+						await prisma.countStatus.update({
+							where: {
+								channelID,
+							},
+							data: {
+								currentNum: sentNumber,
+								highestStreak: sentNumber,
+							},
+						});
+	
+						await prisma.countSubmissions.create({
+							data: {
+								entryID: crypto.randomUUID(),
+								userID: message.author.id,
+								serverID: message.guildId ? message.guildId : "uhhh",
+								channelID: message.channelId,
+								wasCorrect: true,
+								prevNum: channelExists.currentNum,
+								submittedNum: sentNumber,
+								wasNewHighScore: true,
+								createdOn: new Date()
+							}
+						});
+	
+	
+					} else {
+						// * Else, just update the currentNum
+						message.react("✅");
+	
+						await prisma.countStatus.update({
+							where: {
+								channelID,
+							},
+							data: {
+								currentNum: sentNumber,
+							},
+						});
+	
+						await prisma.countSubmissions.create({
+							data: {
+								entryID: crypto.randomUUID(),
+								userID: message.author.id,
+								serverID: message.guildId!,
+								channelID: message.channelId,
+								wasCorrect: true,
+								prevNum: channelExists.currentNum,
+								submittedNum: sentNumber,
+								wasNewHighScore: false,
+								createdOn: new Date(),
+							}
+						});
+	
+					}
+					if(sentNumber === 13) {
+						message.react("😈")
+					}
+					else if(sentNumber === 42) {
+						message.react("🧬")
+					}
+					else if(sentNumber === 100) {
+						message.react("💯")
+					}
+				} else {
+					// * Number is wrong, set counter to 0 and react with an X
+					message.react("❌");
+	
+					await prisma.countSubmissions.create({
+						data: {
+							entryID: crypto.randomUUID(),
+							userID: message.author.id,
+							serverID: message.guildId!,
+							channelID: message.channelId,
+							wasCorrect: false,
+							prevNum: channelExists.currentNum,
+							submittedNum: sentNumber,
+							wasNewHighScore: false,
+							createdOn: new Date(),
+						}
+					})
+	
+					await prisma.countStatus.update({
+						where: {
+							channelID,
+						},
+						data: {
+							currentNum: 0,
+						},
+					});
+				}
+			}
+			catch(e) {
+				// * Stop MathJS from crashing the whole program
+				return;
 			}
 		}
 	});

@@ -82,6 +82,7 @@ const interactionManager = async (client: Client) => {
 					});
 				}
 			}
+
 		} else if (commandName === "leaderboard") {
 			const channel = options.get("channel");
 			if (channel && channel.value) {
@@ -95,10 +96,89 @@ const interactionManager = async (client: Client) => {
 				});
 
 				// * Create an array of users and their scores, add them all up based on the submission, then sort them
+                
 				let userIDArr: string[] = [];
 				let scoreArr: number[] = [];
 				let leaderboardObjects: { name: string; value: number }[] = [];
+        
 				channelInputs.forEach((submission) => {
+					const findUserID = userIDArr.find((id) => id === submission.userID);
+
+					if (findUserID && submission.wasCorrect) {
+
+						const indexOfUID = userIDArr.indexOf(submission.userID);
+						scoreArr[indexOfUID] += 1;
+
+					} else if (findUserID && !submission.wasCorrect) {
+
+						const indexofUID = userIDArr.indexOf(submission.userID);
+						scoreArr[indexofUID] -= 5;
+
+					} else if (submission.wasCorrect) {
+
+						userIDArr.push(submission.userID);
+						scoreArr.push(1);
+
+					} else if (!submission.wasCorrect) {
+
+						userIDArr.push(submission.userID);
+						scoreArr.push(-5);
+                        
+					} else {
+						console.log("uhhhhhhhhh");
+					}
+				});
+
+                // * Push all array data to an array of objects
+				userIDArr.forEach((id, index) => {
+					leaderboardObjects.push({
+						name: `${userIDArr[index]}`,
+						value: scoreArr[index],
+					});
+				});
+
+                // * Sort all objects in descending order
+                leaderboardObjects.sort((a, b) => {
+                    return b.value - a.value;
+                });
+
+                // * Build embed
+				const leaderboardEmbed = new EmbedBuilder()
+					.setColor("Green")
+					.setTitle("✨ Counting Leaderboard")
+					.setDescription(`🔻 Leaderboard for <#${interaction.channelId}>`)
+					.setFooter({
+						text: `Stats as of ${new Date().toISOString()}`,
+					});
+
+                    // * Append items to description
+                        // * Dynamic text like refrencing a channel cant be done in fields so description is best
+				leaderboardObjects.forEach((obj, index) => {
+					if (index < 9) {
+						leaderboardEmbed.setDescription(`${leaderboardEmbed.data.description}\n\n<@${leaderboardObjects[index].name}> - \`\`${leaderboardObjects[index].value}\`\``);
+					}
+				});
+
+				interaction.reply({
+					embeds: [leaderboardEmbed],
+				});
+
+			} else {
+				// * Get leaderboard for entire server
+                const serverInputs = await prisma.countSubmissions.findMany({
+                    where: {
+                        serverID: interaction.guildId?.toString()
+                    }
+                });
+
+                // * Create an array of users and their scores, add them all up based on the submission, then sort them
+
+                // * Keep track of userID and score in two different arrays, and push them at the same time, index's will stay consistent throughout
+                    // * is there a better way of doing this?
+				let userIDArr: string[] = [];
+				let scoreArr: number[] = [];
+				let leaderboardObjects: { name: string; value: number }[] = [];
+				serverInputs.forEach((submission) => {
 					const findUserID = userIDArr.find((id) => id === submission.userID);
 					if (findUserID && submission.wasCorrect) {
 						const indexOfUID = userIDArr.indexOf(submission.userID);
@@ -117,26 +197,24 @@ const interactionManager = async (client: Client) => {
 					}
 				});
 
-				userIDArr.forEach((id, index) => {
+                // * Build the array of objects
+                userIDArr.forEach((id, index) => {
 					leaderboardObjects.push({
 						name: `${userIDArr[index]}`,
 						value: scoreArr[index],
 					});
 				});
 
-				console.log(leaderboardObjects);
-
+                // * Sort in descending 
                 leaderboardObjects.sort((a, b) => {
                     return b.value - a.value;
                 });
 
-				console.log(leaderboardObjects);
-
-
+                // * Build the embed
 				const leaderboardEmbed = new EmbedBuilder()
 					.setColor("Green")
 					.setTitle("✨ Counting Leaderboard")
-					.setDescription(`🔻 Leaderboard for <#${interaction.channelId}>`)
+					.setDescription(`🔻 Leaderboard for the entire server`)
 					.setFooter({
 						text: `Stats as of ${new Date().toISOString()}`,
 					});
@@ -150,8 +228,7 @@ const interactionManager = async (client: Client) => {
 				interaction.reply({
 					embeds: [leaderboardEmbed],
 				});
-			} else {
-				// * Get leaderboard for entire server
+
 			}
 		} else if (commandName === "delete") {
 			const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
