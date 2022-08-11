@@ -14,7 +14,7 @@ Counting bot allows you to register (and delete) specific channels, and count wi
 ## How does it work?
 
 ### Registering/Deleting Channels
-If you're an Administrator, you have the abillity to register and delete channels!
+If you're an Administrator, you have the abillity to register and delete *multiple* channels!
 
 ![Register Screenshot](public/register.png)
 To register a new channel, simply run /register [channelName]
