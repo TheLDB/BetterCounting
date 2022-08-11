@@ -230,7 +230,71 @@ const interactionManager = async (client: Client) => {
 				});
 
 			}
-		} else if (commandName === "delete") {
+		} else if(commandName === "score") {
+            const user = options.get("user");
+            if(user) {
+                // * Get stats on specific user
+                let score: number = 0;
+                const userInputs = await prisma.countSubmissions.findMany({
+                    where: {
+                        userID: user.value?.toString()
+                    }
+                });
+
+                userInputs.forEach(input => {
+                    if(input.wasCorrect) {
+                        score += 1;
+                    }
+                    else {
+                        score -= 5;
+                    }
+                })
+
+                // * Build the embed
+				const scoreEmbed = new EmbedBuilder()
+                .setColor("Green")
+                .setTitle("✨ Counting Score")
+                .setDescription(`🔻 Leaderboard for <@${user.value?.toString()}>\n\n<@${user.value?.toString()}> - \`\`${score}\`\``)
+                .setFooter({
+                    text: `Stats as of ${new Date().toISOString()}`,
+                });
+
+                interaction.reply({
+                    embeds: [scoreEmbed]
+                })
+            }
+            else {
+                // * Get stats on interaction user
+                let score: number = 0;
+                let userInputs = await prisma.countSubmissions.findMany({
+                    where: {
+                        userID: interaction.user.id
+                    }
+                });
+
+                userInputs.forEach(input => {
+                    if(input.wasCorrect) {
+                        score += 1;
+                    }
+                    else {
+                        score -= 5;
+                    }
+                });
+
+                // * Build the embed
+                const scoreEmbed = new EmbedBuilder()
+                .setColor('Green')
+                .setTitle("✨ Counting Score")
+                .setDescription(`🔻 Leaderboard for <@${interaction.user.id}>\n\n<@${interaction.user.id}> - \`\`${score}\`\``)
+                .setFooter({
+                    text: `Stats as of ${new Date().toISOString()}`,
+                });
+
+                interaction.reply({
+                    embeds: [scoreEmbed]
+                })
+            }
+        } else if (commandName === "delete") {
 			const channel = options.get("channel"); // * Get values for the channel (of type DiscordJS Channel)
 			if (channel && channel.value && interaction.memberPermissions?.has("Administrator")) {
 				// * Check if it exists in Supabase already
