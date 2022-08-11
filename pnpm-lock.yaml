@@ -1,20 +1,24 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@prisma/client': ^4.2.1
   '@types/node': ^18.7.1
   discord.js: ^14.2.0
   dotenv: ^16.0.1
   nodemon: ^2.0.19
+  prisma: ^4.2.1
   ts-node: ^10.9.1
   typescript: ^4.7.4
 
 dependencies:
+  '@prisma/client': 4.2.1_prisma@4.2.1
   discord.js: 14.2.0
   dotenv: 16.0.1
 
 devDependencies:
   '@types/node': 18.7.1
   nodemon: 2.0.19
+  prisma: 4.2.1
   ts-node: 10.9.1_lep773egrlwq7kh77ngus6artu
   typescript: 4.7.4
 
@@ -71,6 +75,28 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
+
+  /@prisma/client/4.2.1_prisma@4.2.1:
+    resolution: {integrity: sha512-PZBkY60+k5oix+e6IUfl3ub8TbRLNsPLdfWrdy2eh80WcHTaT+/UfvXf/B7gXedH7FRtbPFHZXk1hZenJiJZFQ==}
+    engines: {node: '>=14.17'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 4.2.0-33.2920a97877e12e055c1333079b8d19cee7f33826
+      prisma: 4.2.1
+    dev: false
+
+  /@prisma/engines-version/4.2.0-33.2920a97877e12e055c1333079b8d19cee7f33826:
+    resolution: {integrity: sha512-tktkqdiwqE4QhmE088boPt+FwPj1Jub/zk+5F6sEfcRHzO5yz9jyMD5HFVtiwxZPLx/8Xg9ElnuTi8E5lWVQFQ==}
+    dev: false
+
+  /@prisma/engines/4.2.1:
+    resolution: {integrity: sha512-0KqBwREUOjBiHwITsQzw2DWfLHjntvbqzGRawj4sBMnIiL5CXwyDUKeHOwXzKMtNr1rEjxEsypM14g0CzLRK3g==}
+    requiresBuild: true
 
   /@sapphire/async-queue/1.4.0:
     resolution: {integrity: sha512-1npoLO1YPPXCsWCfuonsSdtHbPUo6dvjWUJtmUHiK8yDTmy00LbkpRkdV/UycA1fh+QsxwOPhgx2zu64Z+19ww==}
@@ -375,6 +401,14 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
     dev: true
+
+  /prisma/4.2.1:
+    resolution: {integrity: sha512-HuYqnTDgH8atjPGtYmY0Ql9XrrJnfW7daG1PtAJRW0E6gJxc50lY3vrIDn0yjMR3TvRlypjTcspQX8DT+xD4Sg==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 4.2.1
 
   /pstree.remy/1.1.8:
     resolution: {integrity: sha512-77DZwxQmxKnu3aR542U+X8FypNzbfJ+C5XQDk3uWjWxn6151aIMGthWYRXTqT1E5oJvg+ljaa2OJi+VfvCOQ8w==}
