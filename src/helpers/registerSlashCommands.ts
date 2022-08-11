@@ -51,6 +51,32 @@ const registerSlashCommands = (client: Client) => {
 	});
 
 	commands?.create({
+		name: "leaderboard",
+		description: "Get a leaderboard of server or channel counting leaders",
+		options: [
+			{
+				name: "channel",
+				description: "The counting channel to get a leaderboard of",
+				required: false,
+				type: DiscordJS.ApplicationCommandOptionType.Channel
+			}
+		]
+	})
+
+	commands?.create({
+		name: "score",
+		description: "Get the counting score of a specific user. +1 for a correct count, -5 for a wrong count",
+		options: [
+			{
+				name: "user",
+				description: "The user to get a counting score of.",
+				required: false,
+				type: DiscordJS.ApplicationCommandOptionType.User 
+			}
+		]
+	})
+
+	commands?.create({
 		name: "delete",
 		description: "Delete a counting channel",
 		options: [
