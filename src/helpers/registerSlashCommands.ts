@@ -2,7 +2,7 @@ import DiscordJS, { Client } from "discord.js";
 
 const registerSlashCommands = (client: Client) => {
 	console.log("Registering slash commands");
-	const testingGuildID: string = "1007405589762166914";
+	const testingGuildID: string = "";
 	const testingGuild = client.guilds.cache.get(testingGuildID);
 	let commands;
 
