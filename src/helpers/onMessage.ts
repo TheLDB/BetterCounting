@@ -18,138 +18,30 @@ const onMessage = (client: Client): void => {
 			},
 		});
 
-		// * Get latest record for the channel to ensure that its not someone duplicating it
-		const latestMessage = await prisma.countSubmissions.findMany({
-			where: {
-				channelID,
-			},
-			orderBy: {
-				createdOn: "desc",
-			},
-			take: 1,
-		});
+		if (channelExists) {
+			// * Get latest record for the channel to ensure that its not someone duplicating it
+			const latestMessage = await prisma.countSubmissions.findMany({
+				where: {
+					channelID,
+				},
+				orderBy: {
+					createdOn: "desc",
+				},
+				take: 1,
+			});
 
-		const determineEligibillity = async () => {
-			if (latestMessage[0].userID === message.author.id && latestMessage[0].wasCorrect) {
-				return false;
-			} else if (latestMessage[0].userID === message.author.id && !latestMessage[0].wasCorrect) {
-				return true;
-			}
-		};
-		const canSendMessage = await determineEligibillity();
-
-		// * If the channel is a counting channel, and the message content can be converted into a number
-		if (channelExists && !Number.isNaN(Number(message.content))) {
-			const sentNumber = Number(message.content);
-			if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
-				// * Number is correct, increment and react
-				if (sentNumber > Number(channelExists.highestStreak)) {
-					// * If it's a new high streak, update the score
-					message.react("✅");
-					message.react("🎉");
-
-					await prisma.countStatus.update({
-						where: {
-							channelID,
-						},
-						data: {
-							currentNum: sentNumber,
-							highestStreak: sentNumber,
-						},
-					});
-
-					await prisma.countSubmissions.create({
-						data: {
-							entryID: crypto.randomUUID(),
-							userID: message.author.id,
-							serverID: message.guildId ? message.guildId : "uhhh",
-							channelID: message.channelId,
-							wasCorrect: true,
-							prevNum: channelExists.currentNum,
-							submittedNum: sentNumber,
-							wasNewHighScore: true,
-							createdOn: new Date(),
-						},
-					});
-				} else {
-					// * Else, just update the currentNum
-					message.react("✅");
-
-					await prisma.countStatus.update({
-						where: {
-							channelID,
-						},
-						data: {
-							currentNum: sentNumber,
-						},
-					});
-
-					await prisma.countSubmissions.create({
-						data: {
-							entryID: crypto.randomUUID(),
-							userID: message.author.id,
-							serverID: message.guildId!,
-							channelID: message.channelId,
-							wasCorrect: true,
-							prevNum: channelExists.currentNum,
-							submittedNum: sentNumber,
-							wasNewHighScore: false,
-							createdOn: new Date(),
-						},
-					});
+			const determineEligibillity = async () => {
+				if (latestMessage[0].userID === message.author.id && latestMessage[0].wasCorrect) {
+					return false;
+				} else if (latestMessage[0].userID === message.author.id && !latestMessage[0].wasCorrect) {
+					return true;
 				}
-				if (sentNumber === 13) {
-					message.react("😈");
-				} else if (sentNumber === 42) {
-					message.react("🧬");
-				} else if (sentNumber === 100) {
-					message.react("💯");
-				}
-			} else if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && !canSendMessage) {
-				message.react("❓");
-				message.reply({
-					content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
-				});
-			} else {
-				// * Number is wrong, set counter to 0 and react with an X
-				if (canSendMessage) {
-					message.react("❌");
+			};
+			const canSendMessage = await determineEligibillity();
 
-					await prisma.countSubmissions.create({
-						data: {
-							entryID: crypto.randomUUID(),
-							userID: message.author.id,
-							serverID: message.guildId!,
-							channelID: message.channelId,
-							wasCorrect: false,
-							prevNum: channelExists.currentNum,
-							submittedNum: sentNumber,
-							wasNewHighScore: false,
-							createdOn: new Date(),
-						},
-					});
-
-					await prisma.countStatus.update({
-						where: {
-							channelID,
-						},
-						data: {
-							currentNum: 0,
-						},
-					});
-				}
-				else {
-					message.react("❓");
-					message.reply({
-						content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
-					});
-				}
-			}
-		}
-		// * Check if it's a math expression
-		else if (channelExists) {
-			try {
-				let sentNumber = evaluate(message.content);
+			// * If the channel is a counting channel, and the message content can be converted into a number
+			if (!Number.isNaN(Number(message.content))) {
+				const sentNumber = Number(message.content);
 				if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
 					// * Number is correct, increment and react
 					if (sentNumber > Number(channelExists.highestStreak)) {
@@ -253,9 +145,118 @@ const onMessage = (client: Client): void => {
 						});
 					}
 				}
-			} catch (e) {
-				// * Stop MathJS from crashing the whole program
-				return;
+			}
+			// * Check if it's a math expression
+			else {
+				try {
+					let sentNumber = evaluate(message.content);
+					if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
+						// * Number is correct, increment and react
+						if (sentNumber > Number(channelExists.highestStreak)) {
+							// * If it's a new high streak, update the score
+							message.react("✅");
+							message.react("🎉");
+
+							await prisma.countStatus.update({
+								where: {
+									channelID,
+								},
+								data: {
+									currentNum: sentNumber,
+									highestStreak: sentNumber,
+								},
+							});
+
+							await prisma.countSubmissions.create({
+								data: {
+									entryID: crypto.randomUUID(),
+									userID: message.author.id,
+									serverID: message.guildId ? message.guildId : "uhhh",
+									channelID: message.channelId,
+									wasCorrect: true,
+									prevNum: channelExists.currentNum,
+									submittedNum: sentNumber,
+									wasNewHighScore: true,
+									createdOn: new Date(),
+								},
+							});
+						} else {
+							// * Else, just update the currentNum
+							message.react("✅");
+
+							await prisma.countStatus.update({
+								where: {
+									channelID,
+								},
+								data: {
+									currentNum: sentNumber,
+								},
+							});
+
+							await prisma.countSubmissions.create({
+								data: {
+									entryID: crypto.randomUUID(),
+									userID: message.author.id,
+									serverID: message.guildId!,
+									channelID: message.channelId,
+									wasCorrect: true,
+									prevNum: channelExists.currentNum,
+									submittedNum: sentNumber,
+									wasNewHighScore: false,
+									createdOn: new Date(),
+								},
+							});
+						}
+						if (sentNumber === 13) {
+							message.react("😈");
+						} else if (sentNumber === 42) {
+							message.react("🧬");
+						} else if (sentNumber === 100) {
+							message.react("💯");
+						}
+					} else if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && !canSendMessage) {
+						message.react("❓");
+						message.reply({
+							content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
+						});
+					} else {
+						// * Number is wrong, set counter to 0 and react with an X
+						if (canSendMessage) {
+							message.react("❌");
+
+							await prisma.countSubmissions.create({
+								data: {
+									entryID: crypto.randomUUID(),
+									userID: message.author.id,
+									serverID: message.guildId!,
+									channelID: message.channelId,
+									wasCorrect: false,
+									prevNum: channelExists.currentNum,
+									submittedNum: sentNumber,
+									wasNewHighScore: false,
+									createdOn: new Date(),
+								},
+							});
+
+							await prisma.countStatus.update({
+								where: {
+									channelID,
+								},
+								data: {
+									currentNum: 0,
+								},
+							});
+						} else {
+							message.react("❓");
+							message.reply({
+								content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
+							});
+						}
+					}
+				} catch (e) {
+					// * Stop MathJS from crashing the whole program
+					return;
+				}
 			}
 		}
 	});
