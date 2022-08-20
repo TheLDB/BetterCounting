@@ -18,18 +18,18 @@ const onMessage = (client: Client): void => {
 			},
 		});
 
-		if (channelExists) {
-			// * Get latest record for the channel to ensure that its not someone duplicating it
-			const latestMessage = await prisma.countSubmissions.findMany({
-				where: {
-					channelID,
-				},
-				orderBy: {
-					createdOn: "desc",
-				},
-				take: 1,
-			});
+		// * Get latest record for the channel to ensure that its not someone duplicating it
+		const latestMessage = await prisma.countSubmissions.findMany({
+			where: {
+				channelID,
+			},
+			orderBy: {
+				createdOn: "desc",
+			},
+			take: 1,
+		});
 
+		if (latestMessage[0]) {
 			const determineEligibillity = async () => {
 				if (latestMessage[0].userID === message.author.id && latestMessage[0].wasCorrect) {
 					return false;
@@ -40,7 +40,7 @@ const onMessage = (client: Client): void => {
 			const canSendMessage = await determineEligibillity();
 
 			// * If the channel is a counting channel, and the message content can be converted into a number
-			if (!Number.isNaN(Number(message.content))) {
+			if (channelExists && !Number.isNaN(Number(message.content))) {
 				const sentNumber = Number(message.content);
 				if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
 					// * Number is correct, increment and react
@@ -147,7 +147,7 @@ const onMessage = (client: Client): void => {
 				}
 			}
 			// * Check if it's a math expression
-			else {
+			else if (channelExists) {
 				try {
 					let sentNumber = evaluate(message.content);
 					if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
