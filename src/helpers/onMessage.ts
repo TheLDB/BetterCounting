@@ -15,7 +15,7 @@ const onMessage = (client: Client): void => {
 		// * Check if channelID is registered in Supabase
 
 		console.time("countStatus")
-		let channelExists = await prisma.countStatus.findMany({
+		let channelExists = await prisma.countStatus.findUnique({
 			where: {
 				channelID,
 			},
@@ -24,21 +24,25 @@ const onMessage = (client: Client): void => {
 
 		// * Get latest record for the channel to ensure that its not someone duplicating it
 		console.time("countsubfind")
-		const latestMessage = await prisma.countSubmissions.findFirst({
+		const latestMessage = await prisma.countSubmissions.findMany({
 			where: {
 				channelID,
 			},
 			orderBy: {
 				createdOn: "desc",
 			},
+			take: 1,
 		});
 		console.timeEnd("countsubfind");
 
 		const determineEligibillity = async () => {
-			if(latestMessage) {
-				if (latestMessage.userID === message.author.id && latestMessage.wasCorrect) {
+			if(latestMessage.length === 0) {
+				return true;
+			}
+			else {
+				if (latestMessage[0].userID === message.author.id && latestMessage[0].wasCorrect) {
 					return false;
-				} else if (latestMessage.userID === message.author.id && !latestMessage.wasCorrect) {
+				} else if (latestMessage[0].userID === message.author.id && !latestMessage[0].wasCorrect) {
 					return true;
 				}
 			}
@@ -50,11 +54,11 @@ const onMessage = (client: Client): void => {
 		console.timeEnd("counter");
 
 		// * If the channel is a counting channel, and the message content can be converted into a number
-		if (channelExists && channelExists[0] && !Number.isNaN(Number(message.content))) {
+		if (channelExists && channelExists && !Number.isNaN(Number(message.content))) {
 			const sentNumber = Number(message.content);
-			if (Math.round(100 * (sentNumber - Number(channelExists[0].currentNum))) / 100 === Number(channelExists[0].increment) && canSendMessage) {
+			if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
 				// * Number is correct, increment and react
-				if (sentNumber > Number(channelExists[0].highestStreak)) {
+				if (sentNumber > Number(channelExists.highestStreak)) {
 					// * If it's a new high streak, update the score
 					message.react("✅");
 					message.react("🎉");
@@ -76,7 +80,7 @@ const onMessage = (client: Client): void => {
 							serverID: message.guildId ? message.guildId : "uhhh",
 							channelID: message.channelId,
 							wasCorrect: true,
-							prevNum: channelExists[0].currentNum,
+							prevNum: channelExists.currentNum,
 							submittedNum: sentNumber,
 							wasNewHighScore: true,
 							createdOn: new Date(),
@@ -102,7 +106,7 @@ const onMessage = (client: Client): void => {
 							serverID: message.guildId!,
 							channelID: message.channelId,
 							wasCorrect: true,
-							prevNum: channelExists[0].currentNum,
+							prevNum: channelExists.currentNum,
 							submittedNum: sentNumber,
 							wasNewHighScore: false,
 							createdOn: new Date(),
@@ -116,7 +120,7 @@ const onMessage = (client: Client): void => {
 				} else if (sentNumber === 100) {
 					message.react("💯");
 				}
-			} else if (Math.round(100 * (sentNumber - Number(channelExists[0].currentNum))) / 100 === Number(channelExists[0].increment) && !canSendMessage) {
+			} else if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && !canSendMessage) {
 				message.react("❓");
 				message.reply({
 					content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
@@ -133,7 +137,7 @@ const onMessage = (client: Client): void => {
 							serverID: message.guildId!,
 							channelID: message.channelId,
 							wasCorrect: false,
-							prevNum: channelExists[0].currentNum,
+							prevNum: channelExists.currentNum,
 							submittedNum: sentNumber,
 							wasNewHighScore: false,
 							createdOn: new Date(),
@@ -158,12 +162,12 @@ const onMessage = (client: Client): void => {
 			}
 		}
 		// * Check if it's a math expression
-		else if (channelExists[0]) {
+		else if (channelExists) {
 			try {
 				let sentNumber = evaluate(message.content);
-				if (Math.round(100 * (sentNumber - Number(channelExists[0].currentNum))) / 100 === Number(channelExists[0].increment) && canSendMessage) {
+				if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && canSendMessage) {
 					// * Number is correct, increment and react
-					if (sentNumber > Number(channelExists[0].highestStreak)) {
+					if (sentNumber > Number(channelExists.highestStreak)) {
 						// * If it's a new high streak, update the score
 						message.react("✅");
 						message.react("🎉");
@@ -185,7 +189,7 @@ const onMessage = (client: Client): void => {
 								serverID: message.guildId ? message.guildId : "uhhh",
 								channelID: message.channelId,
 								wasCorrect: true,
-								prevNum: channelExists[0].currentNum,
+								prevNum: channelExists.currentNum,
 								submittedNum: sentNumber,
 								wasNewHighScore: true,
 								createdOn: new Date(),
@@ -211,7 +215,7 @@ const onMessage = (client: Client): void => {
 								serverID: message.guildId!,
 								channelID: message.channelId,
 								wasCorrect: true,
-								prevNum: channelExists[0].currentNum,
+								prevNum: channelExists.currentNum,
 								submittedNum: sentNumber,
 								wasNewHighScore: false,
 								createdOn: new Date(),
@@ -225,7 +229,7 @@ const onMessage = (client: Client): void => {
 					} else if (sentNumber === 100) {
 						message.react("💯");
 					}
-				} else if (Math.round(100 * (sentNumber - Number(channelExists[0].currentNum))) / 100 === Number(channelExists[0].increment) && !canSendMessage) {
+				} else if (Math.round(100 * (sentNumber - Number(channelExists.currentNum))) / 100 === Number(channelExists.increment) && !canSendMessage) {
 					message.react("❓");
 					message.reply({
 						content: `Uh oh <@${message.author.id}>! You sent the last message as well.\nPlease let someone else increment before you do!`,
@@ -242,7 +246,7 @@ const onMessage = (client: Client): void => {
 								serverID: message.guildId!,
 								channelID: message.channelId,
 								wasCorrect: false,
-								prevNum: channelExists[0].currentNum,
+								prevNum: channelExists.currentNum,
 								submittedNum: sentNumber,
 								wasNewHighScore: false,
 								createdOn: new Date(),
