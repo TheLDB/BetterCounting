@@ -5,6 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
+    "prod:build": "tsc -p .",
+    "prod:start": "ts-node dest/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
