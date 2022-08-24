@@ -14,16 +14,13 @@ const onMessage = (client: Client): void => {
 
 		// * Check if channelID is registered in Supabase
 
-		console.time("countStatus")
 		let channelExists = await prisma.countStatus.findUnique({
 			where: {
 				channelID,
 			},
 		});
-		console.timeEnd("countStatus")
 
 		// * Get latest record for the channel to ensure that its not someone duplicating it
-		console.time("countsubfind")
 		const latestMessage = await prisma.countSubmissions.findMany({
 			where: {
 				channelID,
@@ -33,7 +30,6 @@ const onMessage = (client: Client): void => {
 			},
 			take: 1,
 		});
-		console.timeEnd("countsubfind");
 
 		const determineEligibillity = async () => {
 			if(latestMessage.length === 0) {
@@ -45,13 +41,14 @@ const onMessage = (client: Client): void => {
 				} else if (latestMessage[0].userID === message.author.id && !latestMessage[0].wasCorrect) {
 					return true;
 				}
+				else if(latestMessage[0].userID !== message.author.id) {
+					return true;
+				}
 			}
 		};
 
-		console.time("counter")
-
+		2
 		const canSendMessage = await determineEligibillity();
-		console.timeEnd("counter");
 
 		// * If the channel is a counting channel, and the message content can be converted into a number
 		if (channelExists && channelExists && !Number.isNaN(Number(message.content))) {
